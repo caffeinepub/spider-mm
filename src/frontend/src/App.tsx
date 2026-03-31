@@ -104,21 +104,23 @@ function ParticleCanvas() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     let animId: number;
-    const particles: {
+    type Particle = {
       x: number;
       y: number;
       r: number;
       opacity: number;
       dx: number;
       dy: number;
-    }[] = [];
+      large?: boolean;
+    };
+    const particles: Particle[] = [];
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
     resize();
     window.addEventListener("resize", resize);
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < 120; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
@@ -128,18 +130,55 @@ function ParticleCanvas() {
         dy: -(0.15 + Math.random() * 0.35),
       });
     }
+    for (let i = 0; i < 7; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: 3 + Math.random() * 3,
+        opacity: 0.04 + Math.random() * 0.04,
+        dx: (Math.random() - 0.5) * 0.12,
+        dy: -(0.05 + Math.random() * 0.1),
+        large: true,
+      });
+    }
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Draw connection lines between nearby small particles
+      for (let i = 0; i < 120; i++) {
+        for (let j = i + 1; j < 120; j++) {
+          const a = particles[i];
+          const b = particles[j];
+          const dist = Math.hypot(a.x - b.x, a.y - b.y);
+          if (dist < 80) {
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.strokeStyle = `rgba(255,255,255,${0.025 * (1 - dist / 80)})`;
+            ctx.lineWidth = 0.4;
+            ctx.stroke();
+          }
+        }
+      }
       for (const p of particles) {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${p.opacity})`;
-        ctx.fill();
+        if (p.large) {
+          const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 2);
+          grad.addColorStop(0, `rgba(200,220,255,${p.opacity})`);
+          grad.addColorStop(1, "rgba(200,220,255,0)");
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r * 2, 0, Math.PI * 2);
+          ctx.fillStyle = grad;
+          ctx.fill();
+        } else {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,255,255,${p.opacity})`;
+          ctx.fill();
+        }
         p.x += p.dx;
         p.y += p.dy;
-        if (p.y < -4) p.y = canvas.height + 4;
-        if (p.x < -4) p.x = canvas.width + 4;
-        if (p.x > canvas.width + 4) p.x = -4;
+        if (p.y < -8) p.y = canvas.height + 8;
+        if (p.x < -8) p.x = canvas.width + 8;
+        if (p.x > canvas.width + 8) p.x = -8;
       }
       animId = requestAnimationFrame(draw);
     };
@@ -166,6 +205,36 @@ function ParticleCanvas() {
 }
 
 function VideoBackground() {
+  const bgInnerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let tX = 0;
+    let tY = 0;
+    let curX = 0;
+    let curY = 0;
+    let rafId: number;
+    const onMove = (e: MouseEvent) => {
+      const cx = window.innerWidth / 2;
+      const cy = window.innerHeight / 2;
+      tX = ((e.clientX - cx) / cx) * -8;
+      tY = ((e.clientY - cy) / cy) * -8;
+    };
+    const animate = () => {
+      curX += (tX - curX) * 0.05;
+      curY += (tY - curY) * 0.05;
+      if (bgInnerRef.current) {
+        bgInnerRef.current.style.transform = `scale(1.06) translate(${curX}px, ${curY}px)`;
+      }
+      rafId = requestAnimationFrame(animate);
+    };
+    window.addEventListener("mousemove", onMove);
+    animate();
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      cancelAnimationFrame(rafId);
+    };
+  }, []);
+
   return (
     <>
       {/* Dark gradient fallback — instant, no JS */}
@@ -216,24 +285,152 @@ function VideoBackground() {
           borderRadius: "50%",
         }}
       />
-      {/* Background image — loads eagerly, fades in on reveal */}
-      <img
-        src="/assets/web_bg_1-019d448b-d0d2-7159-8482-016d6af60f56.png"
-        alt=""
-        loading="eager"
-        fetchPriority="high"
+      {/* Ambient blob 1 — top-left drift */}
+      <div
+        style={{
+          position: "fixed",
+          top: "20%",
+          left: "15%",
+          width: 500,
+          height: 500,
+          transform: "translate(-50%, -50%)",
+          background:
+            "radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)",
+          animation: "blobDrift1 18s ease-in-out infinite",
+          zIndex: 0,
+          pointerEvents: "none",
+          borderRadius: "50%",
+        }}
+      />
+      {/* Ambient blob 2 — bottom-right drift */}
+      <div
+        style={{
+          position: "fixed",
+          top: "75%",
+          left: "80%",
+          width: 450,
+          height: 450,
+          transform: "translate(-50%, -50%)",
+          background:
+            "radial-gradient(circle, rgba(160,190,255,0.04) 0%, transparent 70%)",
+          animation: "blobDrift2 22s ease-in-out infinite",
+          zIndex: 0,
+          pointerEvents: "none",
+          borderRadius: "50%",
+        }}
+      />
+      {/* Ambient blob 3 — center-top drift */}
+      <div
+        style={{
+          position: "fixed",
+          top: "30%",
+          left: "70%",
+          width: 380,
+          height: 380,
+          transform: "translate(-50%, -50%)",
+          background:
+            "radial-gradient(circle, rgba(220,230,255,0.035) 0%, transparent 70%)",
+          animation: "blobDrift3 14s ease-in-out infinite",
+          zIndex: 0,
+          pointerEvents: "none",
+          borderRadius: "50%",
+        }}
+      />
+      {/* Parallax background image wrapper */}
+      <div
         style={{
           position: "fixed",
           top: 0,
           left: 0,
           width: "100%",
           height: "100%",
-          objectFit: "cover",
+          overflow: "hidden",
           zIndex: 0,
           pointerEvents: "none",
-          animation: "bgReveal 1.8s ease-out 0.8s both",
+        }}
+      >
+        <div
+          ref={bgInnerRef}
+          style={{
+            position: "absolute",
+            top: "-3%",
+            left: "-3%",
+            width: "106%",
+            height: "106%",
+            willChange: "transform",
+            animation: "bgReveal 1.8s ease-out 0.8s both",
+          }}
+        >
+          <img
+            src="/assets/web_bg_1-019d448b-d0d2-7159-8482-016d6af60f56.png"
+            alt=""
+            loading="eager"
+            fetchPriority="high"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              display: "block",
+            }}
+          />
+        </div>
+      </div>
+      {/* Scanline effect */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundImage:
+            "repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(255,255,255,0.012) 1px, rgba(255,255,255,0.012) 2px)",
+          zIndex: 1,
+          pointerEvents: "none",
         }}
       />
+      {/* Film grain overlay */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          zIndex: 1,
+          pointerEvents: "none",
+          opacity: 0.4,
+        }}
+      >
+        <svg
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+          }}
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          role="presentation"
+        >
+          <filter id="grain">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.65"
+              numOctaves="3"
+              stitchTiles="stitch"
+            />
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+          <rect
+            width="100%"
+            height="100%"
+            filter="url(#grain)"
+            opacity="0.05"
+          />
+        </svg>
+      </div>
       {/* Dark overlay for text readability */}
       <div
         style={{
@@ -749,7 +946,7 @@ const vouches = [
 // ─── Works Carousel ───────────────────────────────────────────────────────────
 const worksItems = [
   {
-    src: "/assets/img_2647-019d40eb-157d-771e-8ede-07cf6de1de91.jpg",
+    src: "/assets/photo_6172574492572454151_w-019d463a-5cd8-71f7-8cf1-b5c0251f1e5b.jpg",
     label: "Middleman Banner",
   },
   {
