@@ -1126,8 +1126,8 @@ function WorksCarousel() {
                 alt={worksItems[leftIndex].label}
                 style={{
                   width: "100%",
-                  height: "auto",
-                  objectFit: "contain",
+                  height: "100%",
+                  objectFit: "cover",
                   display: "block",
                 }}
               />
@@ -1148,8 +1148,8 @@ function WorksCarousel() {
                 alt={worksItems[currentIndex].label}
                 style={{
                   width: "100%",
-                  height: "auto",
-                  objectFit: "contain",
+                  height: "100%",
+                  objectFit: "cover",
                   display: "block",
                 }}
               />
@@ -1186,8 +1186,8 @@ function WorksCarousel() {
                 alt={worksItems[rightIndex].label}
                 style={{
                   width: "100%",
-                  height: "auto",
-                  objectFit: "contain",
+                  height: "100%",
+                  objectFit: "cover",
                   display: "block",
                 }}
               />
