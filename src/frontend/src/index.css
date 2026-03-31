@@ -477,19 +477,88 @@
   border-radius: 16px;
   overflow: hidden;
   position: relative;
-  border: 1.5px solid rgba(200, 200, 200, 0.45);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 40px
-    rgba(255, 255, 255, 0.1), 0 0 80px rgba(255, 255, 255, 0.04), 0 24px 60px
-    rgba(0, 0, 0, 0.65);
-  transition: box-shadow 0.4s ease, border-color 0.4s ease, transform 0.35s ease;
-  animation: fadeInScale 0.45s ease-out both;
+  transform-style: preserve-3d;
+  /* Blender-style surface lighting borders */
+  border-top: 1.5px solid rgba(255, 255, 255, 0.35);
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow:
+    0 0 0 1.5px rgba(255, 255, 255, 0.18),
+    0 0 30px rgba(255, 255, 255, 0.25),
+    0 0 80px rgba(255, 255, 255, 0.12),
+    0 0 140px rgba(255, 255, 255, 0.05),
+    0 40px 80px rgba(0, 0, 0, 0.8),
+    0 80px 120px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.15));
+  transition: box-shadow 0.5s ease, border-color 0.5s ease, filter 0.5s ease;
+  will-change: transform;
 }
-.works-center-card:hover {
-  transform: scale(1.04);
-  border-color: rgba(230, 230, 230, 0.65);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15), 0 0 55px
-    rgba(255, 255, 255, 0.16), 0 0 100px rgba(255, 255, 255, 0.06), 0 30px 70px
-    rgba(0, 0, 0, 0.7);
+/* Reflective light sheen (diagonal highlight) */
+.works-center-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    transparent 40%,
+    transparent 60%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+  border-radius: inherit;
+  transition: opacity 0.4s ease;
+}
+.works-center-card:hover::after {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    transparent 35%,
+    transparent 65%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+}
+/* Mouse-tracking radial light (Blender surface shading) */
+.works-center-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at calc(var(--mx, 50) * 1%) calc(var(--my, 30) * 1%),
+    rgba(255, 255, 255, 0.12) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+  z-index: 3;
+  border-radius: inherit;
+  transition: background 0.1s ease;
+}
+/* Pulsing glow when idle (not being mouse-tilted) */
+.works-center-card:not(.is-tilting) {
+  animation: cardGlowPulse 3s ease-in-out infinite;
+}
+/* Combine slide animation on navigation */
+.works-center-card.works-slide-next:not(.is-tilting) {
+  animation: cardGlowPulse 3s ease-in-out infinite, worksSlideInFromRight 1.0s
+    cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.works-center-card.works-slide-prev:not(.is-tilting) {
+  animation: cardGlowPulse 3s ease-in-out infinite, worksSlideInFromLeft 1.0s
+    cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+/* Intensify glow on hover */
+.works-center-card.is-tilting {
+  box-shadow:
+    0 0 0 1.5px rgba(255, 255, 255, 0.3),
+    0 0 50px rgba(255, 255, 255, 0.35),
+    0 0 120px rgba(255, 255, 255, 0.18),
+    0 0 200px rgba(255, 255, 255, 0.08),
+    0 40px 80px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  filter: drop-shadow(0 0 35px rgba(255, 255, 255, 0.25));
 }
 
 /* Label overlay on center card */
@@ -512,18 +581,21 @@
   border-radius: 12px;
   overflow: hidden;
   opacity: 0.42;
-  filter: blur(1.5px) brightness(0.75);
+  transform-style: preserve-3d;
+  filter: blur(1.5px) brightness(0.75)
+    drop-shadow(0 0 8px rgba(255, 255, 255, 0.05));
   border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 0 18px rgba(255, 255, 255, 0.07), 0 0 6px
-    rgba(255, 255, 255, 0.04);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.06), 0 20px 50px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   cursor: pointer;
   transition: opacity 0.3s ease, filter 0.3s ease, transform 0.3s ease;
   animation: fadeInScale 0.45s ease-out both;
 }
 .works-side-card:hover {
-  opacity: 0.68;
-  filter: blur(0px) brightness(0.9);
-  transform: scale(1.03);
+  opacity: 0.72;
+  filter: blur(0px) brightness(0.92)
+    drop-shadow(0 0 16px rgba(255, 255, 255, 0.1));
+  transform: scale(1.04) translateY(-3px);
 }
 
 /* Works section navigation arrows — smoky white */
@@ -625,6 +697,30 @@
    WORKS SLIDE-ROLL ANIMATIONS
    ============================================================ */
 
+@keyframes cardGlowPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1.5px rgba(255, 255, 255, 0.18),
+      0 0 30px rgba(255, 255, 255, 0.25),
+      0 0 80px rgba(255, 255, 255, 0.12),
+      0 0 140px rgba(255, 255, 255, 0.05),
+      0 40px 80px rgba(0, 0, 0, 0.8),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.15));
+  }
+  50% {
+    box-shadow:
+      0 0 0 1.5px rgba(255, 255, 255, 0.3),
+      0 0 50px rgba(255, 255, 255, 0.35),
+      0 0 120px rgba(255, 255, 255, 0.18),
+      0 0 200px rgba(255, 255, 255, 0.08),
+      0 40px 80px rgba(0, 0, 0, 0.8),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    filter: drop-shadow(0 0 35px rgba(255, 255, 255, 0.25));
+  }
+}
+
 @keyframes worksSlideInFromRight {
   from {
     transform: translateX(70px) rotate(4deg) scale(0.94);
@@ -646,10 +742,12 @@
   }
 }
 .works-slide-next {
-  animation: worksSlideInFromRight 1.0s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+  animation: cardGlowPulse 3s ease-in-out infinite, worksSlideInFromRight 1.0s
+    cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .works-slide-prev {
-  animation: worksSlideInFromLeft 1.0s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+  animation: cardGlowPulse 3s ease-in-out infinite, worksSlideInFromLeft 1.0s
+    cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes worksSideSlideInFromRight {
@@ -746,4 +844,63 @@
 .vouch-slider-card:hover {
   box-shadow: 0 12px 50px rgba(0, 0, 0, 0.55), 0 0 30px
     rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Music button pulse animation */
+@keyframes musicPulse {
+  0%,
+  100% {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 20px
+      rgba(255, 255, 255, 0.18);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 32px
+      rgba(255, 255, 255, 0.32);
+  }
+}
+
+/* ─── Background reveal animation ─────────────────────────────────────────── */
+@keyframes bgReveal {
+  from {
+    opacity: 0;
+    transform: scale(1.08);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes overlayReveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ─── Glow orb pulse animations ───────────────────────────────────────────── */
+@keyframes orbPulse {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.12);
+  }
+}
+
+@keyframes orbPulse2 {
+  0%,
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(0.92);
+  }
 }

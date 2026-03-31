@@ -1,9 +1,9 @@
+import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 // ─── Social Links ─────────────────────────────────────────────────────────────
 const telegramUrl = "https://t.me/fordyplug";
 const whatsappUrl = "https://wa.me/15485805487";
-const instaUrl = "https://instagram.com/3mk.akshit";
 
 // ─── Scroll Reveal Hook ───────────────────────────────────────────────────────
 function useScrollReveal() {
@@ -74,16 +74,154 @@ function CountUpNumber({ target, suffix }: { target: number; suffix: string }) {
   );
 }
 
+// ─── Audio Player ───────────────────────────────────────────────────────────
+function AudioPlayer({
+  audioRef,
+}: {
+  audioRef: { current: HTMLAudioElement | null };
+}) {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: run once on mount
+  useEffect(() => {
+    const el = document.createElement("audio");
+    el.src = "https://cdn.pixabay.com/audio/2022/08/02/audio_884fe92c21.mp3";
+    el.loop = true;
+    el.preload = "auto";
+    el.volume = 0.35;
+    audioRef.current = el;
+    return () => {
+      el.pause();
+    };
+  }, []);
+  return null;
+}
+
 // ─── Video Background ─────────────────────────────────────────────────────────
+function ParticleCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    let animId: number;
+    const particles: {
+      x: number;
+      y: number;
+      r: number;
+      opacity: number;
+      dx: number;
+      dy: number;
+    }[] = [];
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+    for (let i = 0; i < 80; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: 0.5 + Math.random() * 1.5,
+        opacity: 0.08 + Math.random() * 0.17,
+        dx: (Math.random() - 0.5) * 0.3,
+        dy: -(0.15 + Math.random() * 0.35),
+      });
+    }
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const p of particles) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${p.opacity})`;
+        ctx.fill();
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.y < -4) p.y = canvas.height + 4;
+        if (p.x < -4) p.x = canvas.width + 4;
+        if (p.x > canvas.width + 4) p.x = -4;
+      }
+      animId = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        zIndex: 1,
+        pointerEvents: "none",
+      }}
+    />
+  );
+}
+
 function VideoBackground() {
   return (
     <>
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
+      {/* Dark gradient fallback — instant, no JS */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          background:
+            "radial-gradient(ellipse at 30% 40%, #1a1a2e 0%, #0b0b0b 60%, #080808 100%)",
+          zIndex: 0,
+          pointerEvents: "none",
+        }}
+      />
+      {/* Glow orb 1 */}
+      <div
+        style={{
+          position: "fixed",
+          top: "45%",
+          left: "35%",
+          width: 600,
+          height: 600,
+          transform: "translate(-50%, -50%)",
+          background:
+            "radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)",
+          animation: "orbPulse 4s ease-in-out infinite",
+          zIndex: 0,
+          pointerEvents: "none",
+          borderRadius: "50%",
+        }}
+      />
+      {/* Glow orb 2 */}
+      <div
+        style={{
+          position: "fixed",
+          top: "55%",
+          left: "65%",
+          width: 400,
+          height: 400,
+          transform: "translate(-50%, -50%)",
+          background:
+            "radial-gradient(circle, rgba(180,200,255,0.04) 0%, transparent 70%)",
+          animation: "orbPulse2 6s ease-in-out infinite",
+          zIndex: 0,
+          pointerEvents: "none",
+          borderRadius: "50%",
+        }}
+      />
+      {/* Background image — loads eagerly, fades in on reveal */}
+      <img
+        src="/assets/web_bg_1-019d448b-d0d2-7159-8482-016d6af60f56.png"
+        alt=""
+        loading="eager"
+        fetchPriority="high"
         style={{
           position: "fixed",
           top: 0,
@@ -93,9 +231,10 @@ function VideoBackground() {
           objectFit: "cover",
           zIndex: 0,
           pointerEvents: "none",
+          animation: "bgReveal 1.8s ease-out 0.8s both",
         }}
-        src="/assets/842f100f1c2dae73b6bc248dd3fed955-019d40d1-ac47-74ac-b86e-04829b145b07.mp4"
       />
+      {/* Dark overlay for text readability */}
       <div
         style={{
           position: "fixed",
@@ -103,11 +242,14 @@ function VideoBackground() {
           left: 0,
           width: "100%",
           height: "100%",
-          background: "rgba(0,0,0,0.62)",
+          background: "rgba(0,0,0,0.55)",
           zIndex: 1,
           pointerEvents: "none",
+          animation: "overlayReveal 2s ease-out both",
         }}
       />
+      {/* Live particles */}
+      <ParticleCanvas />
     </>
   );
 }
@@ -204,19 +346,6 @@ function IconWhatsApp({ size = 16 }: { size?: number }) {
       aria-hidden="true"
     >
       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-    </svg>
-  );
-}
-function IconInstagram({ size = 16 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
     </svg>
   );
 }
@@ -650,6 +779,9 @@ function WorksCarousel() {
   const [direction, setDirection] = useState<"next" | "prev">("next");
   const [animKey, setAnimKey] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [isTilting, setIsTilting] = useState(false);
+  const [tiltStyle, setTiltStyle] = useState<React.CSSProperties>({});
+  const centerCardRef = useRef<HTMLDivElement>(null);
   const dragStartX = useRef<number | null>(null);
   const isDragging = useRef(false);
   const total = worksItems.length;
@@ -670,6 +802,37 @@ function WorksCarousel() {
     const id = setInterval(next, 4000);
     return () => clearInterval(id);
   }, [isHovered, next]);
+
+  const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = centerCardRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const rotateY = ((x - cx) / cx) * 12;
+    const rotateX = -((y - cy) / cy) * 12;
+    const mxPct = (x / rect.width) * 100;
+    const myPct = (y / rect.height) * 100;
+    setTiltStyle({
+      transform: `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05) translateY(-4px)`,
+      "--mx": String(mxPct),
+      "--my": String(myPct),
+    } as React.CSSProperties);
+  };
+
+  const handleCardMouseEnter = () => {
+    setIsTilting(true);
+  };
+
+  const handleCardMouseLeave = () => {
+    setIsTilting(false);
+    setTiltStyle({
+      transform:
+        "perspective(900px) rotateX(0deg) rotateY(0deg) scale(1) translateY(0px)",
+    });
+  };
 
   const dragHandlers = {
     onMouseDown: (e: React.MouseEvent) => {
@@ -775,8 +938,13 @@ function WorksCarousel() {
 
             {/* Center featured card — large, smoky white glow */}
             <div
-              className={`works-center-card ${direction === "next" ? "works-slide-next" : "works-slide-prev"}`}
+              className={`works-center-card ${direction === "next" ? "works-slide-next" : "works-slide-prev"} ${isTilting ? "is-tilting" : ""}`}
               key={`center-${animKey}`}
+              ref={centerCardRef}
+              style={tiltStyle}
+              onMouseMove={handleCardMouseMove}
+              onMouseEnter={handleCardMouseEnter}
+              onMouseLeave={handleCardMouseLeave}
             >
               <img
                 src={worksItems[currentIndex].src}
@@ -1199,8 +1367,38 @@ export default function App() {
   useScrollReveal();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // ─── Netflix-style intro sound ──────────────────────────────────────────────
+  useEffect(() => {
+    const intro = new Audio(
+      "https://cdn.pixabay.com/audio/2023/03/08/audio_9d42d86c51.mp3",
+    );
+    intro.volume = 0.6;
+    intro.loop = false;
+    intro.play().catch(() => {});
+    return () => {
+      intro.pause();
+    };
+  }, []);
+
+  const [musicPlaying, setMusicPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  const toggleMusic = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (musicPlaying) {
+      audio.pause();
+      setMusicPlaying(false);
+    } else {
+      audio.play().catch(() => {});
+      setMusicPlaying(true);
+    }
+  };
+
   return (
     <div style={{ background: "#080808", minHeight: "100vh", color: "#fff" }}>
+      {/* ─── BACKGROUND MUSIC ─── */}
+      <AudioPlayer audioRef={audioRef} />
       <VideoBackground />
 
       {/* ─── NAV ─── */}
@@ -1283,15 +1481,6 @@ export default function App() {
               aria-label="WhatsApp"
             >
               <IconWhatsApp size={15} />
-            </a>
-            <a
-              href={instaUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="social-icon-btn"
-              aria-label="Instagram"
-            >
-              <IconInstagram size={15} />
             </a>
             <button
               type="button"
@@ -1402,15 +1591,6 @@ export default function App() {
               >
                 <IconWhatsApp size={15} />
               </a>
-              <a
-                href={instaUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="social-icon-btn"
-                aria-label="Instagram"
-              >
-                <IconInstagram size={15} />
-              </a>
             </div>
           </div>
         )}
@@ -1495,15 +1675,18 @@ export default function App() {
 
           <p
             style={{
-              fontSize: "1.15rem",
+              fontSize: "0.95rem",
               fontWeight: 400,
               color: "rgba(255,255,255,0.6)",
               lineHeight: 1.7,
               marginBottom: "2.4rem",
               animation: "fadeInUp 0.7s ease-out 0.4s both",
+              maxWidth: "700px",
+              margin: "0 auto 2.4rem",
             }}
           >
-            Visuals That Hit Different.
+            Trusted by 500+ clients globally in just 2 years — delivering
+            top-quality work with consistent 10/10 client satisfaction
           </p>
 
           <div
@@ -1988,7 +2171,6 @@ export default function App() {
               >
                 <div>Telegram: @fordyplug</div>
                 <div>WhatsApp: +1 548 580 5487</div>
-                <div>Instagram: @3mk.akshit</div>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 <a
@@ -2008,15 +2190,6 @@ export default function App() {
                   style={{ padding: "8px 16px", fontSize: "0.82rem" }}
                 >
                   <IconWhatsApp size={13} /> WhatsApp
-                </a>
-                <a
-                  href={instaUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-outline"
-                  style={{ padding: "8px 16px", fontSize: "0.82rem" }}
-                >
-                  <IconInstagram size={13} /> Instagram
                 </a>
               </div>
             </div>
@@ -2068,6 +2241,71 @@ export default function App() {
           zIndex: 9999,
         }}
       >
+        {/* Music Toggle */}
+        <button
+          type="button"
+          onClick={toggleMusic}
+          title={musicPlaying ? "Pause Music" : "Play Music"}
+          aria-label={musicPlaying ? "Pause Music" : "Play Music"}
+          data-ocid="music.toggle"
+          style={{
+            width: "52px",
+            height: "52px",
+            borderRadius: "50%",
+            background: "rgba(10,10,10,0.85)",
+            border: musicPlaying
+              ? "1.5px solid rgba(255,255,255,0.35)"
+              : "1.5px solid rgba(255,255,255,0.18)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: musicPlaying
+              ? "0 4px 20px rgba(0,0,0,0.5), 0 0 20px rgba(255,255,255,0.18)"
+              : "0 4px 20px rgba(0,0,0,0.5), 0 0 16px rgba(255,255,255,0.06)",
+            cursor: "pointer",
+            animation: musicPlaying
+              ? "musicPulse 2s ease-in-out infinite"
+              : "none",
+            transition:
+              "transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.transform = "scale(1.12)";
+            (e.currentTarget as HTMLElement).style.boxShadow =
+              "0 6px 28px rgba(0,0,0,0.6), 0 0 24px rgba(255,255,255,0.22)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.transform = "scale(1)";
+            (e.currentTarget as HTMLElement).style.boxShadow = musicPlaying
+              ? "0 4px 20px rgba(0,0,0,0.5), 0 0 20px rgba(255,255,255,0.18)"
+              : "0 4px 20px rgba(0,0,0,0.5), 0 0 16px rgba(255,255,255,0.06)";
+          }}
+        >
+          {musicPlaying ? (
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="rgba(255,255,255,0.85)"
+              aria-hidden="true"
+            >
+              <rect x="6" y="4" width="4" height="16" rx="1" />
+              <rect x="14" y="4" width="4" height="16" rx="1" />
+            </svg>
+          ) : (
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="rgba(255,255,255,0.85)"
+              aria-hidden="true"
+            >
+              <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z" />
+            </svg>
+          )}
+        </button>
         {/* WhatsApp */}
         <a
           href="https://wa.me/15485805487"
