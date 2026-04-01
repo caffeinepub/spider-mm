@@ -14,22 +14,37 @@
         position: fixed;
         top: 0; left: 0;
         width: 100%; height: 100%;
-        background: url('/assets/hero-bg.webp') center center / cover no-repeat, #080808;
+        background: radial-gradient(ellipse at 30% 40%, #1a1a2e 0%, #0b0b0b 60%, #080808 100%);
         z-index: 0;
         pointer-events: none;
       }
+      #root-bg img {
+        width: 100%; height: 100%;
+        -o-object-fit: cover;
+           object-fit: cover;
+        -o-object-position: center center;
+           object-position: center center;
+        display: block;
+      }
     </style>
-    <!-- Preload the hero WebP for instant display -->
-    <link rel="preload" href="/assets/hero-bg.webp" as="image" type="image/webp" />
+    <!-- Preload the background image for instant display -->
+    <link rel="preload" href="/assets/web_bg_1-019d448b-d0d2-7159-8482-016d6af60f56.png" as="image" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-    <script type="module" crossorigin src="/assets/index-CclM1QqA.js"></script>
+    <script type="module" crossorigin src="/assets/index-DIo4fFgF.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-DIRAzlX9.css">
   </head>
   <body>
     <!-- Instant background before React loads -->
-    <div id="root-bg"></div>
+    <div id="root-bg">
+      <img
+        src="/assets/web_bg_1-019d448b-d0d2-7159-8482-016d6af60f56.png"
+        alt=""
+        fetchpriority="high"
+        decoding="sync"
+      />
+    </div>
     <div id="root"></div>
   </body>
 </html>

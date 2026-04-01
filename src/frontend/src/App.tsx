@@ -365,7 +365,7 @@ function VideoBackground() {
           }}
         >
           <img
-            src="/assets/hero-bg.webp"
+            src="/assets/web_bg_1-019d448b-d0d2-7159-8482-016d6af60f56.png"
             alt=""
             loading="eager"
             fetchPriority="high"
