@@ -757,7 +757,7 @@ function StatCardsSection() {
                   borderRadius: 999,
                   background:
                     i === activeIndex
-                      ? "rgba(212,170,80,0.85)"
+                      ? "rgba(220,220,220,0.82)"
                       : "rgba(255,255,255,0.2)",
                   border: "none",
                   cursor: "pointer",
@@ -1834,7 +1834,7 @@ export default function App() {
                 background:
                   "linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0.2) 60%, transparent 90%)",
                 margin: "8px auto 10px",
-                animation: "fadeInUp 0.7s ease-out 0.25s both",
+                animation: "none",
               }}
             />
             <span
@@ -1863,7 +1863,6 @@ export default function App() {
               color: "rgba(255,255,255,0.6)",
               lineHeight: 1.7,
               marginBottom: "2.4rem",
-              animation: "fadeInUp 0.7s ease-out 0.4s both",
               maxWidth: "700px",
               margin: "0 auto 2.4rem",
             }}
@@ -1878,7 +1877,6 @@ export default function App() {
               gap: 12,
               justifyContent: "center",
               flexWrap: "wrap",
-              animation: "slideUp 0.6s ease-out 0.5s both",
               marginBottom: "2rem",
             }}
           >
@@ -1901,7 +1899,7 @@ export default function App() {
             </a>
           </div>
 
-          <div style={{ animation: "fadeInUp 0.7s ease-out 0.65s both" }}>
+          <div>
             <p
               style={{
                 fontSize: "0.88rem",
@@ -1926,11 +1924,11 @@ export default function App() {
           <div className="text-center mb-16 reveal">
             <span className="section-badge">Why Choose Me</span>
             <h2
+              className="section-h2"
               style={{
                 fontSize: "clamp(1.8rem,3.5vw,2.8rem)",
-                fontWeight: 700,
+                fontWeight: 800,
                 lineHeight: 1.2,
-                color: "#F0F0EE",
                 marginTop: 14,
               }}
             >
@@ -1951,10 +1949,10 @@ export default function App() {
           <div className="text-center mb-10 reveal">
             <span className="section-badge">Portfolio</span>
             <h2
+              className="section-h2"
               style={{
                 fontSize: "clamp(1.8rem,3.5vw,2.8rem)",
-                fontWeight: 700,
-                color: "#F0F0EE",
+                fontWeight: 800,
                 marginTop: 14,
               }}
             >
@@ -1987,11 +1985,11 @@ export default function App() {
             <h2
               style={{
                 fontSize: "clamp(1.8rem,3.5vw,2.8rem)",
-                fontWeight: 700,
+                fontWeight: 800,
                 lineHeight: 1.2,
-                color: "#F0F0EE",
                 marginTop: 14,
               }}
+              className="section-h2"
             >
               How We Work
             </h2>
@@ -2073,10 +2071,10 @@ export default function App() {
             <h2
               style={{
                 fontSize: "clamp(1.6rem,3vw,2.4rem)",
-                fontWeight: 700,
-                color: "#F0F0EE",
+                fontWeight: 800,
                 marginTop: 14,
               }}
+              className="section-h2"
             >
               Client Vouches
             </h2>
@@ -2199,7 +2197,6 @@ export default function App() {
               fontWeight: 900,
               fontSize: "clamp(1.8rem,4vw,3rem)",
               lineHeight: 1.1,
-              color: "#F0F0EE",
               marginBottom: 16,
             }}
           >
