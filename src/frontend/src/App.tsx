@@ -349,6 +349,7 @@ function VideoBackground() {
       >
         <div
           ref={bgInnerRef}
+          className="bg-inner-reveal"
           style={{
             position: "absolute",
             top: "-3%",
@@ -356,7 +357,6 @@ function VideoBackground() {
             width: "106%",
             height: "106%",
             willChange: "transform",
-            animation: "none",
           }}
         >
           <img
@@ -468,7 +468,7 @@ function VideoBackground() {
 
 // ─── Stars ────────────────────────────────────────────────────────────────────
 const STAR_IDS = ["s1", "s2", "s3", "s4", "s5"] as const;
-const _STAR_DELAYS: Record<string, number> = {
+const STAR_DELAYS: Record<string, number> = {
   s1: 0.4,
   s2: 0.5,
   s3: 0.6,
@@ -488,6 +488,7 @@ function StarRating({ count = 5 }: { count?: number }) {
           className="star-animate"
           aria-hidden="true"
           style={{
+            animationDelay: `${STAR_DELAYS[id]}s`,
             fontSize: "1.2rem",
             color: "#e8e8e8",
             filter: "drop-shadow(0 0 4px rgba(255,255,255,0.5))",
@@ -1600,7 +1601,7 @@ export default function App() {
 
       {/* ─── NAV ─── */}
       <nav
-        className="fixed top-0 left-0 right-0 z-40"
+        className="fixed top-0 left-0 right-0 z-40 nav-entrance"
         style={{
           background: "rgba(8,8,8,0.8)",
           backdropFilter: "blur(20px)",
@@ -1828,13 +1829,13 @@ export default function App() {
             <span
               style={{
                 display: "block",
-                animation: "none",
+                animation:
+                  "heroTitleReveal 1.2s cubic-bezier(0.22,1,0.36,1) 0.1s both, fordyGlow 3s ease-in-out 1.4s infinite",
                 background:
                   "linear-gradient(135deg, #FFFFFF 0%, #E8E8E8 40%, #C8C8C8 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
-                filter: "drop-shadow(0 0 40px rgba(255,255,255,0.18))",
                 letterSpacing: "0.12em",
               }}
             >
@@ -1848,13 +1849,14 @@ export default function App() {
                 background:
                   "linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0.2) 60%, transparent 90%)",
                 margin: "8px auto 10px",
-                animation: "none",
+                animation: "heroFadeUp 0.8s ease-out 0.6s both",
               }}
             />
             <span
               style={{
                 display: "block",
-                animation: "none",
+                animation:
+                  "heroTitleReveal 1.2s cubic-bezier(0.22,1,0.36,1) 0.35s both",
                 background:
                   "linear-gradient(135deg, #C0C0C0 0%, #FFFFFF 50%, #D8D8D8 100%)",
                 WebkitBackgroundClip: "text",
@@ -1891,6 +1893,7 @@ export default function App() {
               marginBottom: "2.4rem",
               maxWidth: "700px",
               margin: "0 auto 2.4rem",
+              animation: "heroSubReveal 0.9s ease-out 0.55s both",
             }}
           >
             Trusted by 500+ clients globally in just 2 years — delivering
@@ -1904,6 +1907,7 @@ export default function App() {
               justifyContent: "center",
               flexWrap: "wrap",
               marginBottom: "2rem",
+              animation: "heroFadeUp 0.9s ease-out 0.75s both",
             }}
           >
             <button
@@ -1925,7 +1929,7 @@ export default function App() {
             </a>
           </div>
 
-          <div>
+          <div style={{ animation: "heroFadeUp 0.9s ease-out 0.95s both" }}>
             <p
               style={{
                 fontSize: "0.88rem",

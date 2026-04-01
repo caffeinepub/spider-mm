@@ -188,8 +188,8 @@
 /* === UTILITY === */
 
 .star-animate {
-  opacity: 1;
-  animation: none;
+  opacity: 0;
+  animation: starPop 0.4s ease-out forwards;
 }
 
 .reveal {
@@ -1083,8 +1083,109 @@
     rgba(200, 210, 255, 0.1) 40%,
     transparent 80%
   );
-  opacity: 1;
-  animation: heroBeamPulse 4s ease-in-out infinite;
+  animation: heroBeamRise 2.2s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both,
+    heroBeamPulse 4s ease-in-out 2.5s infinite;
   pointer-events: none;
   z-index: 3;
+}
+
+/* === HERO TITLE REVEAL ANIMATIONS === */
+
+@keyframes fordyGlow {
+  0%,
+  100% {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 60px
+      rgba(255, 255, 255, 0.1);
+    filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.18));
+  }
+  50% {
+    text-shadow: 0 0 40px rgba(255, 255, 255, 0.6), 0 0 100px
+      rgba(255, 255, 255, 0.25), 0 0 140px rgba(200, 220, 255, 0.15);
+    filter: drop-shadow(0 0 60px rgba(255, 255, 255, 0.35));
+  }
+}
+
+@keyframes heroTitleReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.97);
+    filter: blur(8px);
+    letter-spacing: 0.05em;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+@keyframes heroSubReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes navSlideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Navbar entrance */
+.nav-entrance {
+  animation: navSlideDown 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* === BG REVEAL === */
+@keyframes bgRevealAnim {
+  0% {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.bg-inner-reveal {
+  animation: bgRevealAnim 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+
+/* Mobile: reduce blur-heavy animations */
+@media (max-width: 767px) {
+  @keyframes heroTitleReveal {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .bg-inner-reveal {
+    animation: bgRevealAnim 0.8s ease-out 0.1s both;
+  }
 }
