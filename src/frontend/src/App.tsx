@@ -1831,7 +1831,7 @@ export default function App() {
             <span
               style={{
                 display: "block",
-                animation: "none",
+                animation: "fadeInFromLeft 0.9s ease-out 0.1s both",
                 background:
                   "linear-gradient(135deg, #FFFFFF 0%, #E8E8E8 40%, #C8C8C8 100%)",
                 WebkitBackgroundClip: "text",
@@ -1851,13 +1851,13 @@ export default function App() {
                 background:
                   "linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0.2) 60%, transparent 90%)",
                 margin: "8px auto 10px",
-                animation: "none",
+                animation: "fadeInUp 0.7s ease-out 0.25s both",
               }}
             />
             <span
               style={{
                 display: "block",
-                animation: "none",
+                animation: "fadeInFromRight 0.9s ease-out 0.25s both",
                 background:
                   "linear-gradient(135deg, #C0C0C0 0%, #FFFFFF 50%, #D8D8D8 100%)",
                 WebkitBackgroundClip: "text",
@@ -1880,7 +1880,7 @@ export default function App() {
               color: "rgba(255,255,255,0.6)",
               lineHeight: 1.7,
               marginBottom: "2.4rem",
-              animation: "none",
+              animation: "fadeInUp 0.7s ease-out 0.4s both",
               maxWidth: "700px",
               margin: "0 auto 2.4rem",
             }}
@@ -1895,7 +1895,7 @@ export default function App() {
               gap: 12,
               justifyContent: "center",
               flexWrap: "wrap",
-              animation: "none",
+              animation: "slideUp 0.6s ease-out 0.5s both",
               marginBottom: "2rem",
             }}
           >
@@ -1918,7 +1918,7 @@ export default function App() {
             </a>
           </div>
 
-          <div style={{ animation: "none" }}>
+          <div style={{ animation: "fadeInUp 0.7s ease-out 0.65s both" }}>
             <p
               style={{
                 fontSize: "0.88rem",
