@@ -120,7 +120,10 @@ function ParticleCanvas() {
     };
     resize();
     window.addEventListener("resize", resize);
-    for (let i = 0; i < 120; i++) {
+    const isMobile = canvas.width < 768;
+    const COUNT = isMobile ? 40 : 120;
+    const LARGE_COUNT = isMobile ? 3 : 7;
+    for (let i = 0; i < COUNT; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
@@ -130,7 +133,7 @@ function ParticleCanvas() {
         dy: -(0.15 + Math.random() * 0.35),
       });
     }
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < LARGE_COUNT; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
@@ -144,8 +147,8 @@ function ParticleCanvas() {
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       // Draw connection lines between nearby small particles
-      for (let i = 0; i < 120; i++) {
-        for (let j = i + 1; j < 120; j++) {
+      for (let i = 0; i < COUNT; i++) {
+        for (let j = i + 1; j < COUNT; j++) {
           const a = particles[i];
           const b = particles[j];
           const dist = Math.hypot(a.x - b.x, a.y - b.y);
@@ -358,7 +361,7 @@ function VideoBackground() {
             width: "106%",
             height: "106%",
             willChange: "transform",
-            animation: "bgReveal 1.8s ease-out 0.8s both",
+            animation: "none",
           }}
         >
           <img
@@ -370,6 +373,7 @@ function VideoBackground() {
               width: "100%",
               height: "100%",
               objectFit: "cover",
+              objectPosition: "center center",
               display: "block",
             }}
           />
@@ -442,7 +446,6 @@ function VideoBackground() {
           background: "rgba(0,0,0,0.55)",
           zIndex: 1,
           pointerEvents: "none",
-          animation: "overlayReveal 2s ease-out both",
         }}
       />
       {/* Live particles */}
