@@ -74,27 +74,6 @@ function CountUpNumber({ target, suffix }: { target: number; suffix: string }) {
   );
 }
 
-// ─── Audio Player ───────────────────────────────────────────────────────────
-function AudioPlayer({
-  audioRef,
-}: {
-  audioRef: { current: HTMLAudioElement | null };
-}) {
-  // biome-ignore lint/correctness/useExhaustiveDependencies: run once on mount
-  useEffect(() => {
-    const el = document.createElement("audio");
-    el.src = "https://cdn.pixabay.com/audio/2022/08/02/audio_884fe92c21.mp3";
-    el.loop = true;
-    el.preload = "auto";
-    el.volume = 0.35;
-    audioRef.current = el;
-    return () => {
-      el.pause();
-    };
-  }, []);
-  return null;
-}
-
 // ─── Video Background ─────────────────────────────────────────────────────────
 function ParticleCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -146,22 +125,24 @@ function ParticleCanvas() {
     }
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      // Draw connection lines between nearby small particles
+      // Draw connection lines between nearby small particles (batched for perf)
+      ctx.save();
+      ctx.lineWidth = 0.4;
       for (let i = 0; i < COUNT; i++) {
         for (let j = i + 1; j < COUNT; j++) {
           const a = particles[i];
           const b = particles[j];
           const dist = Math.hypot(a.x - b.x, a.y - b.y);
-          if (dist < 80) {
+          if (dist < 60) {
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(b.x, b.y);
-            ctx.strokeStyle = `rgba(255,255,255,${0.025 * (1 - dist / 80)})`;
-            ctx.lineWidth = 0.4;
+            ctx.strokeStyle = `rgba(255,255,255,${0.025 * (1 - dist / 60)})`;
             ctx.stroke();
           }
         }
       }
+      ctx.restore();
       for (const p of particles) {
         if (p.large) {
           const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 2);
@@ -186,9 +167,18 @@ function ParticleCanvas() {
       animId = requestAnimationFrame(draw);
     };
     draw();
+    const onVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animId);
+      } else {
+        draw();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
   return (
@@ -231,7 +221,9 @@ function VideoBackground() {
       rafId = requestAnimationFrame(animate);
     };
     window.addEventListener("mousemove", onMove);
-    animate();
+    if (window.innerWidth >= 768) {
+      animate();
+    }
     return () => {
       window.removeEventListener("mousemove", onMove);
       cancelAnimationFrame(rafId);
@@ -290,6 +282,7 @@ function VideoBackground() {
       />
       {/* Ambient blob 1 — top-left drift */}
       <div
+        className="bg-blob"
         style={{
           position: "fixed",
           top: "20%",
@@ -307,6 +300,7 @@ function VideoBackground() {
       />
       {/* Ambient blob 2 — bottom-right drift */}
       <div
+        className="bg-blob"
         style={{
           position: "fixed",
           top: "75%",
@@ -324,6 +318,7 @@ function VideoBackground() {
       />
       {/* Ambient blob 3 — center-top drift */}
       <div
+        className="bg-blob"
         style={{
           position: "fixed",
           top: "30%",
@@ -381,6 +376,7 @@ function VideoBackground() {
       </div>
       {/* Scanline effect */}
       <div
+        className="scanline-overlay"
         style={{
           position: "fixed",
           top: 0,
@@ -395,6 +391,7 @@ function VideoBackground() {
       />
       {/* Film grain overlay */}
       <div
+        className="film-grain"
         style={{
           position: "fixed",
           top: 0,
@@ -1580,25 +1577,11 @@ export default function App() {
     };
   }, []);
 
-  const [musicPlaying, setMusicPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
-
-  const toggleMusic = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (musicPlaying) {
-      audio.pause();
-      setMusicPlaying(false);
-    } else {
-      audio.play().catch(() => {});
-      setMusicPlaying(true);
-    }
-  };
+  const isMobileDevice =
+    typeof window !== "undefined" && window.innerWidth < 768;
 
   return (
     <div style={{ background: "#080808", minHeight: "100vh", color: "#fff" }}>
-      {/* ─── BACKGROUND MUSIC ─── */}
-      <AudioPlayer audioRef={audioRef} />
       <VideoBackground />
 
       {/* ─── NAV ─── */}
@@ -1831,7 +1814,7 @@ export default function App() {
             <span
               style={{
                 display: "block",
-                animation: "fadeInFromLeft 0.9s ease-out 0.1s both",
+                animation: "none",
                 background:
                   "linear-gradient(135deg, #FFFFFF 0%, #E8E8E8 40%, #C8C8C8 100%)",
                 WebkitBackgroundClip: "text",
@@ -1857,7 +1840,7 @@ export default function App() {
             <span
               style={{
                 display: "block",
-                animation: "fadeInFromRight 0.9s ease-out 0.25s both",
+                animation: "none",
                 background:
                   "linear-gradient(135deg, #C0C0C0 0%, #FFFFFF 50%, #D8D8D8 100%)",
                 WebkitBackgroundClip: "text",
@@ -2432,80 +2415,15 @@ export default function App() {
       <div
         style={{
           position: "fixed",
-          bottom: "28px",
-          right: "24px",
+          bottom: isMobileDevice ? "16px" : "28px",
+          right: isMobileDevice ? "12px" : "24px",
           display: "flex",
           flexDirection: "column",
           alignItems: "flex-end",
-          gap: "12px",
+          gap: isMobileDevice ? "8px" : "12px",
           zIndex: 9999,
         }}
       >
-        {/* Music Toggle */}
-        <button
-          type="button"
-          onClick={toggleMusic}
-          title={musicPlaying ? "Pause Music" : "Play Music"}
-          aria-label={musicPlaying ? "Pause Music" : "Play Music"}
-          data-ocid="music.toggle"
-          style={{
-            width: "52px",
-            height: "52px",
-            borderRadius: "50%",
-            background: "rgba(10,10,10,0.85)",
-            border: musicPlaying
-              ? "1.5px solid rgba(255,255,255,0.35)"
-              : "1.5px solid rgba(255,255,255,0.18)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: musicPlaying
-              ? "0 4px 20px rgba(0,0,0,0.5), 0 0 20px rgba(255,255,255,0.18)"
-              : "0 4px 20px rgba(0,0,0,0.5), 0 0 16px rgba(255,255,255,0.06)",
-            cursor: "pointer",
-            animation: musicPlaying
-              ? "musicPulse 2s ease-in-out infinite"
-              : "none",
-            transition:
-              "transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease",
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.transform = "scale(1.12)";
-            (e.currentTarget as HTMLElement).style.boxShadow =
-              "0 6px 28px rgba(0,0,0,0.6), 0 0 24px rgba(255,255,255,0.22)";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.transform = "scale(1)";
-            (e.currentTarget as HTMLElement).style.boxShadow = musicPlaying
-              ? "0 4px 20px rgba(0,0,0,0.5), 0 0 20px rgba(255,255,255,0.18)"
-              : "0 4px 20px rgba(0,0,0,0.5), 0 0 16px rgba(255,255,255,0.06)";
-          }}
-        >
-          {musicPlaying ? (
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="rgba(255,255,255,0.85)"
-              aria-hidden="true"
-            >
-              <rect x="6" y="4" width="4" height="16" rx="1" />
-              <rect x="14" y="4" width="4" height="16" rx="1" />
-            </svg>
-          ) : (
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="rgba(255,255,255,0.85)"
-              aria-hidden="true"
-            >
-              <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z" />
-            </svg>
-          )}
-        </button>
         {/* WhatsApp */}
         <a
           href="https://wa.me/15485805487"

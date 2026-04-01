@@ -846,19 +846,6 @@
     rgba(255, 255, 255, 0.06) !important;
 }
 
-/* Music button pulse animation */
-@keyframes musicPulse {
-  0%,
-  100% {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 20px
-      rgba(255, 255, 255, 0.18);
-  }
-  50% {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 32px
-      rgba(255, 255, 255, 0.32);
-  }
-}
-
 /* ─── Background reveal animation ─────────────────────────────────────────── */
 @keyframes bgReveal {
   from {
@@ -987,5 +974,37 @@
   }
   .reveal-delay-5 {
     transition-delay: 0.1s;
+  }
+
+  /* Hide expensive visual effects on mobile */
+  .bg-blob {
+    display: none;
+  }
+  .film-grain {
+    display: none;
+  }
+  .scanline-overlay {
+    display: none;
+  }
+
+  /* Disable float animations on mobile */
+  .stat-card-float-1,
+  .stat-card-float-2,
+  .stat-card-float-3,
+  .stat-card-float-4 {
+    animation: none;
+  }
+
+  /* Simplified works card glow on mobile */
+  .works-center-card {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 12px
+      rgba(255, 255, 255, 0.08) !important;
+  }
+
+  /* Disable vouch card smoke animation on mobile */
+  .vouch-card-glow::before,
+  .vouch-card-glow::after {
+    animation: none !important;
+    filter: none !important;
   }
 }
