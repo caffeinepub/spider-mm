@@ -188,8 +188,8 @@
 /* === UTILITY === */
 
 .star-animate {
-  opacity: 0;
-  animation: starPop 0.4s ease-out forwards;
+  opacity: 1;
+  animation: none;
 }
 
 .reveal {
@@ -1041,4 +1041,50 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.08));
+}
+
+/* === HERO SHOWCASE LIGHT BEAM === */
+@keyframes heroBeamRise {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scaleY(0.3) translateY(40px);
+  }
+  40% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scaleY(1) translateY(0px);
+  }
+}
+
+@keyframes heroBeamPulse {
+  0%,
+  100% {
+    opacity: 0.85;
+    filter: blur(28px) brightness(1);
+  }
+  50% {
+    opacity: 1;
+    filter: blur(22px) brightness(1.25);
+  }
+}
+
+.hero-light-beam {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(700px, 90vw);
+  height: 160px;
+  background: radial-gradient(
+    ellipse 60% 100% at 50% 100%,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(200, 210, 255, 0.1) 40%,
+    transparent 80%
+  );
+  opacity: 1;
+  animation: heroBeamPulse 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 3;
 }

@@ -360,7 +360,7 @@ function VideoBackground() {
           }}
         >
           <img
-            src="/assets/web_bg_1-019d448b-d0d2-7159-8482-016d6af60f56.png"
+            src="/assets/fordy-bg-new.jpg"
             alt=""
             loading="eager"
             fetchPriority="high"
@@ -369,11 +369,26 @@ function VideoBackground() {
               height: "100%",
               objectFit: "cover",
               objectPosition: "center center",
+              imageRendering: "high-quality" as unknown as "auto",
               display: "block",
             }}
           />
         </div>
       </div>
+      {/* Vignette overlay for HD premium look */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          background:
+            "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.35) 100%)",
+          pointerEvents: "none",
+          zIndex: 1,
+        }}
+      />
       {/* Scanline effect */}
       <div
         className="scanline-overlay"
@@ -453,7 +468,7 @@ function VideoBackground() {
 
 // ─── Stars ────────────────────────────────────────────────────────────────────
 const STAR_IDS = ["s1", "s2", "s3", "s4", "s5"] as const;
-const STAR_DELAYS: Record<string, number> = {
+const _STAR_DELAYS: Record<string, number> = {
   s1: 0.4,
   s2: 0.5,
   s3: 0.6,
@@ -473,7 +488,6 @@ function StarRating({ count = 5 }: { count?: number }) {
           className="star-animate"
           aria-hidden="true"
           style={{
-            animationDelay: `${STAR_DELAYS[id]}s`,
             fontSize: "1.2rem",
             color: "#e8e8e8",
             filter: "drop-shadow(0 0 4px rgba(255,255,255,0.5))",
@@ -1855,6 +1869,18 @@ export default function App() {
               GRAPHICS
             </span>
           </h1>
+
+          {/* Showcase light beam — animates slowly from bottom with fade */}
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              height: 0,
+              pointerEvents: "none",
+            }}
+          >
+            <div className="hero-light-beam" />
+          </div>
 
           <p
             style={{
