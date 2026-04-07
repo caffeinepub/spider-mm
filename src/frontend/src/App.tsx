@@ -1,6 +1,13 @@
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+// ─── UnicornStudio type declaration ───────────────────────────────────────────
+declare global {
+  interface Window {
+    UnicornStudio: { isInitialized?: boolean; init: () => void };
+  }
+}
+
 // ─── Social Links ─────────────────────────────────────────────────────────────
 const telegramUrl = "https://t.me/fordyplug";
 const whatsappUrl = "https://wa.me/15485805487";
@@ -1579,6 +1586,21 @@ export default function App() {
   useScrollReveal();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // ─── UnicornStudio script loader ─────────────────────────────────────────────
+  useEffect(() => {
+    if (window.UnicornStudio?.isInitialized) return;
+    const script = document.createElement("script");
+    script.src =
+      "https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v2.1.6/dist/unicornStudio.umd.js";
+    script.onload = () => {
+      if (window.UnicornStudio && !window.UnicornStudio.isInitialized) {
+        window.UnicornStudio.init();
+        window.UnicornStudio.isInitialized = true;
+      }
+    };
+    (document.head || document.body).appendChild(script);
+  }, []);
+
   // ─── Netflix-style intro sound ──────────────────────────────────────────────
   useEffect(() => {
     const intro = new Audio(
@@ -1809,6 +1831,18 @@ export default function App() {
           overflow: "hidden",
         }}
       >
+        {/* UnicornStudio background — fills hero, sits below content */}
+        <div
+          data-us-project="FebssKQyKRvy8jmKeOMO"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: 0,
+            pointerEvents: "none",
+          }}
+        />
         <div
           style={{
             position: "relative",

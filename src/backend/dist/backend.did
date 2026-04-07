@@ -1,0 +1,12 @@
+type WaitlistEntry = 
+ record {
+   email: Email;
+   timestamp: Timestamp;
+ };
+type Timestamp = int;
+type Email = text;
+service : {
+  addToWaitlist: (email: Email) -> ();
+  getAllWaitlistEntriesSorted: () -> (vec WaitlistEntry) query;
+  getTotalWaitlistEntries: () -> (nat) query;
+}
